@@ -2,7 +2,7 @@
  * File:   hw6.cpp
  * Author: Roy Van Liew and Saqib Zahid
  *
- * Last updated on March 23rd, 2014, 1:08 PM
+ * Last updated on March 25th, 2014, 8:54 AM
  */
 
 #include <iostream>
@@ -81,10 +81,12 @@ void ComputerLabs::show_labs() {
             cout << j << ": " << labs[i][j] << ' ';
         cout << endl;
     }
+    
     return;
     
 }
 
+// In login we assign a user ID to a valid computer station in a lab.
 void ComputerLabs::login(){
     
     string userID;
@@ -110,8 +112,12 @@ void ComputerLabs::login(){
     // Assign the ID to that spot in the vector.
     labs[lab][comp] = userID;
     
+    return;
+    
 }
 
+// In logoff we're checking if an entered user ID exists.
+// If it does, set that computer status to "Empty"
 void ComputerLabs::logoff(){
     
     string userID;
@@ -124,6 +130,8 @@ void ComputerLabs::logoff(){
     do {
         cout << "Enter User ID. It must be exactly 5 characters." << endl;
         cin >> userID;
+        if( userID.length() != 5 )
+            cout << "The ID entered was not 5 characters. Try again." << endl;        
     } while ( userID.length() != 5 );
     
     // Search through the labs.
@@ -134,7 +142,6 @@ void ComputerLabs::logoff(){
             // If the user is found, log that user off.
             if( labs[i][j] == userID ){
                 labs[i][j] = "Empty"; // Indicate that the user logged off.
-                cout << "User " << userID << " found at Lab " << i << " Station " << j << "." << endl;
                 cout << "User " << userID << " successfully logged off." << endl;
                 return;
             }
@@ -143,22 +150,188 @@ void ComputerLabs::logoff(){
     
     // If we get here that means the user was not found.
     cout << "This user is not logged in." << endl;
+    
     return;
     
 }
+
+// Like logoff we are checking if a user ID exists.
+// However we are just outputting which lab and station it is in.
+void ComputerLabs::search_user(){
+    
+    string userID;
+    int lab, comp;
+    int d1 = labs.size(); // First dimension of labs vector
+    int d2; // Second dimension of labs vector
+    int i, j; // for loop counters.
+    
+    // Get User ID, 5 characters long.
+    do {
+        cout << "Enter User ID. It must be exactly 5 characters." << endl;
+        cin >> userID;
+        if( userID.length() != 5 )
+            cout << "The ID entered was not 5 characters. Try again." << endl;
+    } while ( userID.length() != 5 );
+    
+    // Search through the labs.
+    for( i = 0; i < d1; i++){
+        // Here d2 is for the number of computers in that lab.
+        d2 = labs[i].size();
+        for( j = 0; j < d2; j++ ){
+            // If the user is found, specify the lab and the computer station.
+            if( labs[i][j] == userID ){
+                cout << "User " << userID << " found at Lab " << i << ", Station " << j << "." << endl;
+                return;
+            }
+        }
+    }
+    
+    // If we get here that means the user was not found.
+    cout << "This user was not found." << endl;
+    
+    return;
+    
+}
+
+// User specifies where in the first dimension of the vector to insert the new lab.
+// Then if it is valid, create second dimension for that lab from what the user inputs for computers.
+// Initialize all the computers in the new lab to Empty.
+void ComputerLabs::addLab(){
+    
+    int lab, comp;
+    int i; // for loop counters.
+    int d1; // Number of labs
+    d1 = labs.size(); // Valid positions for new lab.
+    do {
+        cout << "Currently there are labs 0 to " << d1-1 << "." << endl;
+        cout << "At what position do you want the new lab?" << endl;
+        cin >> lab;
+        cout << "How many Computers do you want in this new lab?" << endl;
+        cin >> comp;
+        if( ( lab > d1 ) || lab < 0 )
+            cout << "Invalid new lab position." << endl;
+        if( comp < 0 )
+            cout << "Cannot have negative computers." << endl;
+    } while ( ( lab > d1 ) || lab < 0 || comp < 0 );
+     
+    vector<string> newlab;
+    for (i = 0; i < comp ; i++ )
+        newlab.push_back("Empty");
+    labs.insert( labs.begin()+lab , newlab );
+    
+    return;
+    
+}
+
+// Add a computer to an already existing lab.
+// Get valid lab number first. If the lab is found, show user how many computers there are.
+// The user can then state the position to enter the new computer.
+void ComputerLabs::addComp(){
+    
+    int lab, comp;
+    int d1 = labs.size(); // First dimension of labs vector
+    int d2; // Second dimension of labs vector
+    int i, j; // for loop counters.
+    
+    // Get a valid lab number.
+    do {
+        cout << "Currently there are labs 0 to " << d1-1 << "." << endl;
+        cout << "What lab do you want the new computer in?" << endl;
+        cin >> lab;
+        if( ( lab > (d1-1) ) || lab < 0 )
+            cout << "Invalid lab position." << endl;
+    } while ( ( lab > (d1-1) ) || lab < 0 );
+    
+    d2 = labs[lab].size(); // Get how many computers are in that lab.
+    do {
+        cout << "Currently there are computers 0 to " << d2-1 << "." << endl;
+        cout << "At what position do you want the new computer?" << endl;
+        cin >> comp;
+        if( ( comp > d2-1 ) || comp < 0 )
+            cout << "Invalid new computer position." << endl;
+    } while ( ( comp > d2-1 ) || comp < 0 );
+    
+    // Insert new computer in specified position of the lab.
+    labs[lab].insert( labs[lab].begin()+comp , "Empty" );
+    
+    return;
+    
+}
+
+// Remove a lab from the current list of labs (first dimension).
+//void ComputerLabs::removeLab(){
+//    
+//    int lab;
+//    int d1 = labs.size(); // First dimension of labs vector
+//    int i; // for loop counter.
+//    
+//    // Get a valid lab number.
+//    do {
+//        cout << "There are currently " << d1 << " labs." << endl;
+//        cout << "Which lab would you like to remove?" << endl;
+//        cin >> lab;
+//        if( ( lab > (d1-1) ) || lab < 0 )
+//            cout << "Invalid lab position." << endl;
+//    } while ( ( lab > (d1-1) ) || lab < 0 );
+//    
+//     // Remove the specified lab position.
+//     labs.erase( lab );   
+//    
+//    return;
+//    
+//}
+
+// Here a user specifies the lab to remove a computer from.
+// After a valid lab is entered, a valid computer has to be entered.
+//void ComputerLabs::removeComp(){
+//    
+//    int lab, comp;
+//    int d1 = labs.size(); // First dimension of labs vector
+//    int d2; // Second dimension of labs vector
+//    int i, j; // for loop counters.
+//    
+//    // Get a valid lab number.
+//    do {
+//        cout << "There are currently " << d1 << " labs." << endl;
+//        cout << "Which lab would you like to remove a computer?" << endl;
+//        cin >> lab;
+//        if( ( lab > (d1-1) ) || lab < 0 )
+//            cout << "Invalid lab position." << endl;
+//    } while ( ( lab > (d1-1) ) || lab < 0 );
+//    
+//    d2 = labs[lab].size(); // Get how many computers are in that lab.
+//    do {
+//        cout << "There are currently " << d2 << " computers." << endl;
+//        cout << "At what position in this lab do you want to remove a computer?" << endl;
+//        cin >> comp;
+//        if( ( comp > d2-1 ) || comp < 0 )
+//            cout << "Invalid new computer position." << endl;
+//    } while ( ( comp > d2-1 ) || comp < 0 );
+//    
+//    labs.erase( labs[lab].begin() + comp );
+//    
+//}
 
 int main() {
     
     ComputerLabs lab;
     lab.show_labs();
     
-    cout << "Attempting a login." << endl;
-    lab.login();
+    cout << "\nAdd a lab." << endl;
+    lab.addLab();
     lab.show_labs();
     
-    cout << "Attempting a logoff." << endl;
-    lab.logoff();
+    cout << "\nAdd a computer." << endl;
+    lab.addComp();
     lab.show_labs();
+    
+//    cout << "Attempting a login." << endl;
+//    lab.login();
+//    lab.show_labs();
+//    
+//    cout << "Attempting a logoff." << endl;
+//    lab.logoff();
+//    lab.show_labs();
     
     return 0;
 }
